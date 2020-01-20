@@ -19,13 +19,14 @@ class Element extends Database
     //Functions used in model depending of needs, add your own functions here
     //Don't forget to construct the main variable to specify table information as is shown
     //    $table = new Table(self::$tableName, self::$fields, self::$fieldTypes, self::$primaryKey);
-    public static function getAllElements()
-    {
-        try {
-            $table = new Table(self::$tableName, self::$fields, self::$fieldTypes, self::$primaryKey);
-            return self::getAll($table);
-        } catch (Exception $ex) {
-            throw new Exception("Something fail getting elements: " . $ex->getMessage());
-        }
-    }
+    //Example function:
+    //public static function getAllElements()
+    //{
+    //    try {
+    //        $table = new Table(self::$tableName, self::$fields, self::$fieldTypes, self::$primaryKey);
+    //        return self::getAll($table);
+    //    } catch (Exception $ex) {
+    //        throw new Exception("Something fail getting elements: " . $ex->getMessage());
+    //    }
+    //}
 }
