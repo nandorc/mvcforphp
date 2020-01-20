@@ -13,7 +13,15 @@ if (!isset($_GET["action"])) {
     header("Location: ../index.php");
 } else {
     $action = $_GET["action"];
-    //Add each action usign a if...elseif...else structure
+    //Add each action as cases for the switch conditional
     //if you use any Database action, use a try...catch block to consider exceptions
-    
+    try {
+        switch ($action) {
+            default:
+                throw new Exception("No action or no valid action sent");
+        }
+    } catch (Exception $ex) {
+        //Display or send error message according to your needs
+        echo "Error: " . $ex->getMessage();
+    }
 }
