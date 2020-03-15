@@ -1,6 +1,11 @@
-php_flag display_errors on
+#If can't display php error, or doesn't create error_log file, uncomment next line and try again
+#if server error appear, comment it again.
+#php_flag display_errors on
+
 Options -Indexes
+
 <IfModule mod_rewrite.c>
+
 RewriteEngine On
 
 #If testing on localhost should put project uncomment and replace ProjectName
