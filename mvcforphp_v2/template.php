@@ -29,7 +29,7 @@
 
     <!-- CSS Libraries -->
     <!-- Own library -->
-    <link rel="stylesheet" href="[ownCSSLibraryPath]" />
+    <!-- <link rel="stylesheet" href="[ownCSSLibraryPath]" /> -->
 </head>
 
 <body>
@@ -57,7 +57,7 @@
 
     <!-- JS Libraries -->
     <!-- Own library -->
-    <script src="[ownJSLibraryPath]"></script>
+    <!-- <script src="[ownJSLibraryPath]"></script> -->
 </body>
 
 </html>
