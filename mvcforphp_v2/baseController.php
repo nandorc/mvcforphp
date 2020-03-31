@@ -1,4 +1,7 @@
 <?php
+//PHP error checking
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
 //Models required in the Controller
 //called by the instruction
 //   include_once "../models/[NombreModelo].php";

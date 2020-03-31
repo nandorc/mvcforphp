@@ -1,4 +1,7 @@
 <?php
+//PHP error checking
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
 //Models required in the View to show data
 //are called by the instruction changing the [model]
 //   include_once "../models/[model].php";
@@ -13,7 +16,7 @@ $content = function () {
     //Content variables
     //Remember to use $GLOBALS if the variable is out of the function scope
     //
-    ?>
+?>
     <!-- Content of the page -->
 <?php
 };

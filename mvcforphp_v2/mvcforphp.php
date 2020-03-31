@@ -1,5 +1,5 @@
 <?php
-
+//
 /**
  * MVC for PHP 
  * 
@@ -11,7 +11,7 @@
  * @version 2.0
  * @package mvcforphp
  */
-
+//
 //PARAMETERS
 /**
  * MODE for database connections.
@@ -29,7 +29,7 @@ const ONLINE_HOST_USER = "";
 const ONLINE_HOST_PWD = "";
 const ONLINE_HOST_PORT = "";
 const ONLINE_DATABASE_NAME = "";
-
+//
 //CLASS DATABASE
 /**
  * Class for database access and modification functions.
