@@ -14,7 +14,7 @@ if (!isset($_GET["action"])) {
 } else {
     $action = $_GET["action"];
     //Add each action as cases for the switch conditional
-    //if you use any Database action, use a try...catch block to consider exceptions
+    //Use sendResponse and sendError functions to send formatted messages to the page
     try {
         switch ($action) {
             default:
@@ -22,6 +22,25 @@ if (!isset($_GET["action"])) {
         }
     } catch (Exception $ex) {
         //Display or send error message according to your needs
-        echo "Error: " . $ex->getMessage();
+        sendError($ex->getMessage());
     }
+}
+//Functions for controllers
+/**
+ * Send a response message
+ * @param string $message Message to be sent to the page
+ * @return string
+ */
+function sendResponse(string $message)
+{
+    echo "OK: $message";
+}
+/**
+ * Send an error message
+ * @param string $message Error message to be sent to the page
+ * @return string
+ */
+function sendError(string $message)
+{
+    echo "Error: $message";
 }
