@@ -37,7 +37,7 @@ const ONLINE_DATABASE_NAME = "";
 class Database
 {
     //PROTECTED ATTRIBUTES
-    protected static Table $table;
+    protected static $table;
     //PROTECTED METHODS
     protected static function defineTable()
     {
@@ -460,10 +460,9 @@ class Model
 class SQLClauses
 {
     //Attributes
-    private array $selectFields = array();
-    private array $wherePairs = array();
-    private array $orderPairs = array();
-    private array $updatePairs = array();
+    private $selectFields = array();
+    private $wherePairs = array();
+    private $orderPairs = array();
 
     //Get and Set Functions
     public function __get($name)
