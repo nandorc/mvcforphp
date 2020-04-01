@@ -522,6 +522,13 @@ class MVC
             $rootPath .= "../";
         return $rootPath;
     }
+    public static function showServerVariables()
+    {
+        $keys = array_keys($_SERVER);
+        foreach ($keys as $key) {
+            echo $key . " - " . $_SERVER[$key] . "<br/>";
+        }
+    }
 }
 //
 //CLASS MODEL
