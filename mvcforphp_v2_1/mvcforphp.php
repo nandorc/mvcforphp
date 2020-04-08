@@ -42,6 +42,7 @@ session_start();
 //CLASS DATABASE
 /**
  * Class for database access and modification functions.
+ * @property int $lastIndex (STATIC) Stores the last AUTO_INCREMENT value generated on an add operation.
  * @method static mysqli_result runQuery(string $sqlQuery) Executes an $sqlQuery and return mysqli_result.
  * @method static void runTransaction(string $sqlTransaction) Executes an $sqlTransaction on database.
  * @method static Model[] getAll(SQLClauses $queryConf) Get all data on a table depending on optional SQLClauses defined.
@@ -53,6 +54,12 @@ session_start();
  */
 class Database
 {
+    //PUBLIC STATIC ATTRIBUTES
+    /**
+     * (STATIC) Stores the last AUTO_INCREMENT value generated on an add operation.
+     * @var int
+     */
+    public static $lastIndex;
     //PROTECTED STATIC ATTRIBUTES
     /**
      * Table object to set table definition attributes.
@@ -118,6 +125,7 @@ class Database
         try {
             $connection = self::connect();
             if ($connection->query($sqlTransaction) !== TRUE) throw new Exception($connection->error);
+            self::$lastIndex = mysqli_insert_id($connection);
         } catch (Exception $ex) {
             throw new Exception("Transaction failed: " . $ex->getMessage());
         } finally {
@@ -262,26 +270,6 @@ class Database
             self::runTransaction("delete from " . self::$table->tableName . " where " . self::$table->primaryKey . "='$id';");
         } catch (Exception $ex) {
             throw new Exception("Something failed deleting data: " . $ex->getMessage());
-        }
-    }
-    /**
-     * Get next index for auto_increment value
-     * @return int Containing the next index if operation succeed or -1 if no index found.
-     * @throws Exception If something fails.
-     */
-    public static function getNextIndex()
-    {
-        try {
-            static::defineTable();
-            if (self::$table == null) throw new Exception("No table defined to make this operation.");
-            $primaryKey = self::$table->primaryKey;
-            $clauses = new SQLClauses();
-            $clauses->selectFields = array($primaryKey);
-            $indexes = self::getAll($clauses);
-            $count = sizeof($indexes);
-            return ($count == 0) ? 1 : $indexes[$count - 1]->$primaryKey + 1;
-        } catch (Exception $ex) {
-            throw new Exception("Something failed getting index: " . $ex->getMessage());
         }
     }
     //
