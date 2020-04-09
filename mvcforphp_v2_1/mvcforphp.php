@@ -50,7 +50,6 @@ session_start();
  * @method static void add(string[] $newData, SQLClauses $transConf) Add the $newData to Database Table depending on optional SQLClauses defined.
  * @method static void update(string $id, string[] $newData, SQLClauses $transConf) Update $newData of an item on a table depending on $id and optional SQLClases defined.
  * @method static void delete(string $id) Delete an item from a table depending on $id.
- * @method static int getNextIndex() Returns the next index for auto_increment value on table.
  */
 class Database
 {
@@ -148,8 +147,8 @@ class Database
             if ($queryConf == null) $sql = "select * from " . self::$table->tableName . " order by " . self::$table->primaryKey . ";";
             else {
                 $sql = "select ";
-                $selectFields = $queryConf->selectFields;
-                if ($selectFields != "") $sql = $sql . $selectFields;
+                $fields = $queryConf->fields;
+                if ($fields != "") $sql = $sql . $fields;
                 else $sql = $sql . "*";
                 $sql = $sql . " from " . self::$table->tableName;
                 $wherePairs = $queryConf->wherePairs;
@@ -195,7 +194,7 @@ class Database
     /**
      * Add an item to the table
      * @param string[] $newData Data to be send on INSERT sentence.
-     * @param SQLClauses $transConf (Optional) If $newData array has less elements than $table->fields, a SQLClauses->selectFields must be defined in order to define which fields are going to be send to the INSERT sentence.
+     * @param SQLClauses $transConf (Optional) If $newData array has less elements than $table->fields, a SQLClauses->fields must be defined in order to define which fields are going to be send to the INSERT sentence.
      * @return void
      * @throws Exception If something fail adding data.
      */
@@ -207,18 +206,18 @@ class Database
             $fieldsCount = sizeof(self::$table->fields);
             $dataCount = sizeof($newData);
             if ($dataCount > $fieldsCount) throw new Exception("Data list can't have more elements than field list.");
-            else if ($dataCount < $fieldsCount && $transConf == null) throw new Exception("If data list has less elements than field list, a selectFields list must be defined.");
+            else if ($dataCount < $fieldsCount && $transConf == null) throw new Exception("If data list has less elements than field list, a fields list must be defined.");
             else if ($dataCount < $fieldsCount) {
-                $sfCount = sizeof(explode(",", $transConf->selectFields));
-                if ($dataCount != $sfCount) throw new Exception("No valid selectFields list for data list given.");
+                $tcFiledsCount = sizeof(explode(",", $transConf->fields));
+                if ($dataCount != $tcFiledsCount) throw new Exception("No valid fields list for data list given.");
             } else {
                 $transConf = new SQLClauses();
-                $transConf->selectFields = self::$table->getFieldNames();
+                $transConf->fields = self::$table->fieldNames();
             }
-            $fieldsToAdd = explode(",", $transConf->selectFields);
+            $fieldsToAdd = explode(",", $transConf->fields);
             $values = self::$table->parseValueOf($fieldsToAdd[0], $newData[0]);
             for ($i = 1; $i < $dataCount; $i++) $values = $values . "," . self::$table->parseValueOf($fieldsToAdd[$i], $newData[$i]);
-            $sql = "insert into " . self::$table->tableName . " (" . $transConf->selectFields . ") values (" . $values . ");";
+            $sql = "insert into " . self::$table->tableName . " (" . $transConf->fields . ") values (" . $values . ");";
             self::runTransaction($sql);
         } catch (Exception $ex) {
             throw new Exception("Something failed adding data: " . $ex->getMessage());
@@ -228,7 +227,7 @@ class Database
      * Update an item from a table depending on id
      * @param string $id PK from the element to update.
      * @param string[] $newData Array which contains the new data to save on the row.
-     * @param SQLClauses $transConf (Optional) If $newData array has less elements than $table->fields, a SQLClauses->selectFields must be defined in order to define which fields are going to be send to the UPDATE sentence.
+     * @param SQLClauses $transConf (Optional) If $newData array has less elements than $table->fields, a SQLClauses->fields must be defined in order to define which fields are going to be send to the UPDATE sentence.
      * @return void If operation succeed.
      * @throws Exception If something updating data fail.
      */
@@ -240,15 +239,15 @@ class Database
             $fieldsCount = sizeof(self::$table->fields);
             $dataCount = sizeof($newData);
             if ($dataCount > $fieldsCount) throw new Exception("Data list can't have more elements than field list.");
-            else if ($dataCount < $fieldsCount && $transConf == null) throw new Exception("If data list has less elements than field list, a selectFields list must be defined.");
+            else if ($dataCount < $fieldsCount && $transConf == null) throw new Exception("If data list has less elements than field list, a fields list must be defined.");
             else if ($dataCount < $fieldsCount) {
-                $upCount = sizeof(explode(",", $transConf->selectFields));
-                if ($dataCount != $upCount) throw new Exception("No valid updatePairs list for data list given.");
+                $tcFieldsCount = sizeof(explode(",", $transConf->fields));
+                if ($dataCount != $tcFieldsCount) throw new Exception("No valid fields list for data list given.");
             } else {
                 $transConf = new SQLClauses();
-                $transConf->selectFields = self::$table->getFieldNames();
+                $transConf->fields = self::$table->fieldNames();
             }
-            $fieldsToChange = explode(",", $transConf->selectFields);
+            $fieldsToChange = explode(",", $transConf->fields);
             $values = $fieldsToChange[0] . "=" . self::$table->parseValueOf($fieldsToChange[0], $newData[0]);
             for ($i = 1; $i < $dataCount; $i++) $values = $values . "," . $fieldsToChange[$i] . "=" . self::$table->parseValueOf($fieldsToChange[$i], $newData[$i]);
             self::runTransaction("update " . self::$table->tableName . " set " . $values . " where " . self::$table->primaryKey . "='$id';");
@@ -318,7 +317,7 @@ class Database
  * @property string $tableName Defines the name of the entity on relational DB.
  * @property string[] $fields Defines a string array which contains the name and primitive datatype for each field in the entity. Each string element must be written as a "[name]:[type]" pair. Type could be key, text, number, date or datetime. If type is not defined it would be text as default.
  * @property string $primaryKey Defines the name of the field wich is the primary key on the DB entity.
- * @method string[] getFieldNames() Get an array with field names for table.
+ * @method string[] fieldNames() Get an array with field names for table.
  * @method string parseValueOf(string $name, string $value) Parses the $value given based on specific field type for the given field $name.
  */
 class Table
@@ -381,7 +380,7 @@ class Table
      * Get an array with field names for table
      * @return string[]
      */
-    public function getFieldNames()
+    public function fieldNames()
     {
         $fieldNames = array();
         foreach ($this->fields as $field) {
@@ -403,7 +402,7 @@ class Table
         foreach ($this->fields as $field) {
             $fieldInfo = explode(":", $field);
             if ($fieldInfo[0] == $name) {
-                $parsedValue = $this->getFieldValue($fieldInfo[1], $value);
+                $parsedValue = $this->fieldValue($fieldInfo[1], $value);
                 break;
             }
         }
@@ -416,23 +415,23 @@ class Table
      * Get parsed value depending on field type.
      * @param string $type Type of field to be parsed. It could be key, text, number, date or datetime.
      * @param string $value Value to be parsed according to field type defined.
-     * @return string Empty if no valid field type given.
+     * @throws Exception If no valid field type given.
      */
-    private function getFieldValue(string $type, string $value)
+    private function fieldValue(string $type, string $value)
     {
-        if ($type == "key") return self::getKeyField($value);
-        elseif ($type == "text") return self::getTextField($value);
-        elseif ($type == "number") return self::getNumberField($value);
-        elseif ($type == "date") return self::getDateField($value);
-        elseif ($type == "datetime") return self::getDateTimeField($value);
-        else return "";
+        if ($type == "key") return self::keyFieldValue($value);
+        elseif ($type == "text") return self::textFieldValue($value);
+        elseif ($type == "number") return self::numberFieldValue($value);
+        elseif ($type == "date") return self::dateFieldVaue($value);
+        elseif ($type == "datetime") return self::datetimeFieldValue($value);
+        else throw new Exception("No valid field type received.");
     }
     /**
      * Get value from a field that is primary or foreign key
      * @param string $value Value to be parsed.
      * @return string
      */
-    private function getKeyField(string $value)
+    private function keyFieldValue(string $value)
     {
         return ($value == "") ? "NULL" : "'" . $value . "'";
     }
@@ -441,7 +440,7 @@ class Table
      * @param string $value Value to be parsed.
      * @return string
      */
-    private function getTextField(string $value)
+    private function textFieldValue(string $value)
     {
         return "'" . htmlspecialchars(trim($value), ENT_QUOTES) . "'";
     }
@@ -450,7 +449,7 @@ class Table
      * @param string $value Value to be parsed.
      * @return string
      */
-    private function getNumberField(string $value)
+    private function numberFieldValue(string $value)
     {
         return ($value == "") ? "'0'" : "'" . $value . "'";
     }
@@ -459,7 +458,7 @@ class Table
      * @param string $value Value to be parsed.
      * @return string
      */
-    private function getDateField(string $value)
+    private function dateFieldVaue(string $value)
     {
         date_default_timezone_set('America/Bogota');
         return ($value == "") ? "'" . date("Y-m-d") . "'" : "'" . $value . "'";
@@ -469,7 +468,7 @@ class Table
      * @param string $value Value to be parsed.
      * @return string
      */
-    private function getDateTimeField(string $value)
+    private function datetimeFieldValue(string $value)
     {
         date_default_timezone_set('America/Bogota');
         return ($value == "") ? "'" . date("Y-m-d H:i:s") . "'" : "'" . $value . "'";
@@ -479,7 +478,7 @@ class Table
 //CLASS SQLClauses
 /**
  * Class for defining special SQL clauses.
- * @property string[] $selectFields Defines a field list.
+ * @property string[] $fields Defines a field list.
  * @property string[] $wherePairs Defines a WHERE clause content. Each string element must be written as a "[name]:[value]" pair.
  * @property string[] $orderPairs Defines an ORDER BY clause content. Each string element must be written as a "[name]:[value]" pair. If value is not defined, it would be asc by default.
  */
@@ -490,7 +489,7 @@ class SQLClauses
      * Defines a field list.
      * @var string[]
      */
-    private $selectFields = array();
+    private $fields = array();
     /**
      * Defines a WHERE clause content. Each string element must be written as a "[name]:[value]" pair.
      * @var string[]
@@ -512,11 +511,11 @@ class SQLClauses
     {
         $clause = "";
         switch ($name) {
-            case "selectFields":
-                $count = sizeof($this->selectFields);
+            case "fields":
+                $count = sizeof($this->fields);
                 if ($count > 0) {
-                    $clause = $this->selectFields[0];
-                    for ($i = 1; $i < $count; $i++) $clause = $clause . "," . $this->selectFields[$i];
+                    $clause = $this->fields[0];
+                    for ($i = 1; $i < $count; $i++) $clause = $clause . "," . $this->fields[$i];
                 }
                 break;
             case "wherePairs":
@@ -579,7 +578,7 @@ class SQLClauses
  * 
  * @property int $folderLevel Defines the folder level since root folder. 0 for root folder and by default is 1 for Views and Controllers.
  * @method void useModel(string $modelName) Include model files to use on code based on $modelName.
- * @method static void showServerVariables() Show on screen variables from server.
+ * @method static void serverVariables() Show on screen variables from server.
  */
 class MVC
 {
@@ -598,14 +597,14 @@ class MVC
      */
     public function useModel(string $modelName)
     {
-        require_once $this->getRootPath() . "models/" . $modelName . ".php";
+        require_once $this->rootPath() . "models/" . $modelName . ".php";
     }
     //PUBLIC STATIC METHODS
     /**
      * Show on screen variables from server.
      * @return void
      */
-    public static function showServerVariables()
+    public static function serverVariables()
     {
         $keys = array_keys($_SERVER);
         foreach ($keys as $key) echo $key . " - " . $_SERVER[$key] . "<br/>";
@@ -616,7 +615,7 @@ class MVC
      * Constructs root path based on class folder level.
      * @return void
      */
-    protected function getRootPath()
+    protected function rootPath()
     {
         $rootPath = "";
         for ($i = 0; $i < $this->folderLevel; $i++) $rootPath .= "../";
@@ -698,7 +697,7 @@ class View extends MVC
      */
     public function useComponent(string $componentName, array $data = array())
     {
-        require_once $this->getRootPath() . "views/shared/components/" . $componentName . ".php";
+        require_once $this->rootPath() . "views/shared/components/" . $componentName . ".php";
     }
     /**
      * Render and show the page. $content is an anonymous functios containing additional content for the page. $data is an optional associative array to send data to the page template.
@@ -711,7 +710,7 @@ class View extends MVC
         if ($content == null) $content = function () {
             echo "No content defined for view";
         };
-        require_once $this->getRootPath() . "views/shared/template.php";
+        require_once $this->rootPath() . "views/shared/template.php";
     }
 }
 //
@@ -723,7 +722,7 @@ class View extends MVC
  * @method void useModel(string $modelName) Include model files to use on code.
  * @method void sendResponse(string $message) Send a response message
  * @method void sendError(string $message) Send an error message
- * @method void setAction(string $name, function $action) Create a new action for the controller. $name is the name of the action and $action is an anonymous functions with the action content.
+ * @method void addAction(string $name, function $action) Create a new action for the controller. $name is the name of the action and $action is an anonymous functions with the action content.
  * @method void processAction(string $actionName) Process action from the action array.
  */
 class Controller extends MVC
@@ -760,7 +759,7 @@ class Controller extends MVC
      * @param function $action Delegate function for the action.
      * @return void
      */
-    public function setAction(string $name, $action)
+    public function addAction(string $name, $action)
     {
         $this->actions[$name] = $action;
     }
@@ -774,7 +773,7 @@ class Controller extends MVC
     {
         try {
             $actionsCount = sizeof($this->actions);
-            if ($actionsCount == 0) header("Location: " . $this->getRootPath() . "index.php");
+            if ($actionsCount == 0) header("Location: " . $this->rootPath() . "index.php");
             if (!array_key_exists($actionName, $this->actions)) throw new Exception("No action or no valid action sent");
             $this->actions[$actionName]();
         } catch (Exception $ex) {
