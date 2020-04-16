@@ -42,7 +42,7 @@ if (!isset($data["title"]))
     </nav>
 
     <!-- Main content of the page -->
-    <main class="container">
+    <main>
         <!-- Keep next line in order to show extra content defined for page -->
         <?= $content(); ?>
     </main>
