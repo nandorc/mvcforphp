@@ -9,7 +9,7 @@ Options -Indexes
 RewriteEngine On
 
 #If testing on localhost should put project uncomment and replace ProjectName
-RewriteBase /mvctester
+RewriteBase /ProjectName
 #If testing on hosting uncomment
 #RewriteBase /
 

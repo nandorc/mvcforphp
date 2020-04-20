@@ -1,22 +1,19 @@
 <?php
-//Required files
-include_once "../resources/scripts/mvcforphp.php";
-//
 //Class definition
 //Change ModelName according with your database and modify values
-//    tableName is the name of the table in the database
-//    fields is an array with names of fields in the table
-//    fieldTypes is an arrat with types for each field, these could be key, text, number, date or datetime
-//    primaryKey is the name of the field which is the PK of the table
+/**
+ * @property string $tableName Defines the name of the entity on relational DB.
+ * @property array<string> $fields Defines a string array which contains the name and primitive datatype for each field in the entity. Each string element must be written as a "[name]:[type]" pair. Type could be key, text, number, date or datetime. If type is not defined it would be text as default.
+ * @property string $primaryKey Defines the name of the field wich is the primary key on the DB entity.
+ */
 class People extends Database
 {
     //Constants
     private static $tableName = "people";
-    private static $fields = array("persondni", "personname", "personbirthdate", "personheight", "personweight", "username");
-    private static $fieldTypes = array("key", "text", "date", "number", "number", "key");
+    private static $fields = array("persondni:key", "personname", "personbirthdate:date", "personheight:number", "personweight:number", "username:key");
     private static $primaryKey = "persondni";
     protected static function defineTable()
     {
-        self::$table = new Table(self::$tableName, self::$fields, self::$fieldTypes, self::$primaryKey);
+        self::$table = new Table(self::$tableName, self::$fields, self::$primaryKey);
     }
 }

@@ -1,9 +1,7 @@
 <?php
-//If you want to include components from the components folder, create them and add them using the include function
-//don't forget to put the instruction between the begin and end tags for php code.
-//    include_once "components/[componentName].php;
-//
 //Variables for the Template
+if (!isset($data["title"]))
+    $data["title"] = "MVC Tester";
 ?>
 <!DOCTYPE html>
 <html>
@@ -22,7 +20,7 @@
     <meta name="author" content="Daniel F. Rivera C." />
 
     <!-- Page title -->
-    <title>MVC Tester</title>
+    <title><?= $data["title"]; ?></title>
 
     <!-- Page icon -->
     <link rel="icon" href="images/icon.ico" />
@@ -59,9 +57,8 @@
 
     <!-- Main content of the page -->
     <main>
-        <!-- You can make any additional distribution for the page content here inside this main tag -->
-        <!-- Don't forget to put the loadContent() function from PHP code anywhere you want the variable content to appear -->
-        <?= loadContent(); ?>
+        <!-- Keep next line in order to show extra content defined for page -->
+        <?= $content(); ?>
     </main>
 
     <!-- Footer for the Web Page -->
@@ -83,9 +80,3 @@
 </html>
 <?php
 //Template functions
-function loadContent()
-{
-    if (isset($GLOBALS["content"])) {
-        $GLOBALS["content"]();
-    }
-}
