@@ -72,7 +72,7 @@ class MVC
             $viewName .= "?" . $keys[0] . "=" . $data[$keys[0]];
             for ($i = 1; $i < $dcount; $i++) $viewName .= "&" . $keys[$i] . "=" . $data[$keys[$i]];
         }
-        header("Location: $path");
+        header("Location: $viewName");
     }
     /**
      * Show on screen variables from server.
