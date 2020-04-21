@@ -19,6 +19,7 @@ In order to use this library your web project must look like this
       - [AdditionalImagesHere...]
     - scripts
       - mvcforphp.php
+      - dbconf.json (optional)
       - [EachPersonalCSSLibsHere...]
       - [EachPersonalJSLibsHere...]
     - videos

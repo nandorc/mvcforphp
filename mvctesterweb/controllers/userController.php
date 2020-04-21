@@ -2,10 +2,11 @@
 require_once "../resources/scripts/mvcforphp.php";
 $controller = new Controller();
 $controller->useModel("users");
-$controller->useModel("people");
-$controller->addAction("test", function () use ($controller) {
+$controller->useModel("persons");
+$users = new Users();
+$controller->addAction("test", function () use ($controller, $users) {
     try {
-        $usersDB = Users::getAll();
+        $usersDB = $users->getAll();
         foreach ($usersDB as $user) echo "$user <br/>";
     } catch (Exception $ex) {
         $controller->sendError($ex->getMessage());
