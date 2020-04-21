@@ -404,11 +404,13 @@ class DBModel extends MVC
     /**
      * Creates a new DBModel.
      * @param SQLTable $table Defines the sql table wich is the base for DBModel.
+     * @param int $level (Optional) Folder level for the file. By default is 1 for MVC.
      * @return DBModel
      */
-    public function __construct(SQLTable $table)
+    public function __construct(SQLTable $table, int $level = 1)
     {
         $this->table = $table;
+        $this->level = $level;
     }
     /**
      * Return the value of a private field on class.
@@ -637,6 +639,15 @@ class DBModel extends MVC
 class View extends MVC
 {
     /**
+     * Creates a new View.
+     * @param int $level (Optional) Folder level for the file. By default is 1 for MVC.
+     * @return View
+     */
+    public function __construct(int $level = 1)
+    {
+        $this->level = $level;
+    }
+    /**
      * Includes a component file while rendering, $data is an optional associative array to send data to component.
      * @param string $componentName Name of the component to be included.
      * @param array $data (Optional) Additional data to be send to the component.
@@ -678,6 +689,15 @@ class Controller extends MVC
      * @var array
      */
     private $actions = array();
+    /**
+     * Creates a new Controller.
+     * @param int $level (Optional) Folder level for the file. By default is 1 for MVC.
+     * @return Controller
+     */
+    public function __construct(int $level = 1)
+    {
+        $this->level = $level;
+    }
     /**
      * Send a response message
      * @param string $message Message to be sent.
