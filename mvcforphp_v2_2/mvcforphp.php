@@ -56,23 +56,20 @@ class MVC
         require_once $path;
     }
     /**
-     * Redirect to the view specified on $viewName. Optional $data could be sent to the view.
-     * @param string $viewName Name of the view to be redirected to.
-     * @param array $data (Optional) Data to be sent to the view through GET method. $data must be an associative array.
+     * Redirect to the specified $dir. Optional $data could be sent.
+     * @param string $dir Direction to be redirected to.
+     * @param array $data (Optional) Data to be sent through GET method. $data must be an associative array.
      * @return void
-     * @throws Exception If view doesn's exists on views folder.
      */
-    public function redirView(string $viewName, array $data = array())
+    public function redir(string $dir, array $data = array())
     {
-        $path = $this->rootPath() . "views/" . $viewName . "View.php";
-        if (!file_exists($path)) throw new Exception("View doesn't exists in views folder ($path).");
         $dcount = sizeof($data);
         if ($dcount > 0) {
             $keys = array_keys($data);
-            $viewName .= "?" . $keys[0] . "=" . $data[$keys[0]];
-            for ($i = 1; $i < $dcount; $i++) $viewName .= "&" . $keys[$i] . "=" . $data[$keys[$i]];
+            $dir .= "?" . $keys[0] . "=" . $data[$keys[0]];
+            for ($i = 1; $i < $dcount; $i++) $dir .= "&" . $keys[$i] . "=" . $data[$keys[$i]];
         }
-        header("Location: $viewName");
+        header("Location: $dir");
     }
     /**
      * Show on screen variables from server.
