@@ -18,7 +18,7 @@ session_start();
  * Class for defining page MVC elements.
  * @property int $level Folder level for the file. By default is 1 for MVC.
  * @method void useModel(string $modelName, int level) Include model files to use on code based on $modelName.
- * @method void redirView(string $viewName, array $data)Redirect to the view specified on $viewName. Optional $data could be sent to the view.
+ * @method void redir(string $dir, array $data) Redirect to the specified $dir. Optional $data could be sent.
  * @method static void serverVariables() Show on screen variables from server.
  */
 class MVC
