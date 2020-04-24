@@ -18,7 +18,7 @@ session_start();
  * Class for defining page MVC elements.
  * @property int $level Folder level for the file. By default is 1 for MVC.
  * @method void useModel(string $modelName, int level) Include model files to use on code based on $modelName.
- * @method void redirView(string $viewName, array $data)Redirect to the view specified on $viewName. Optional $data could be sent to the view.
+ * @method void redir(string $dir, array $data) Redirect to the specified $dir. Optional $data could be sent.
  * @method static void serverVariables() Show on screen variables from server.
  */
 class MVC
@@ -56,23 +56,20 @@ class MVC
         require_once $path;
     }
     /**
-     * Redirect to the view specified on $viewName. Optional $data could be sent to the view.
-     * @param string $viewName Name of the view to be redirected to.
-     * @param array $data (Optional) Data to be sent to the view through GET method. $data must be an associative array.
+     * Redirect to the specified $dir. Optional $data could be sent.
+     * @param string $dir Direction to be redirected to.
+     * @param array $data (Optional) Data to be sent through GET method. $data must be an associative array.
      * @return void
-     * @throws Exception If view doesn's exists on views folder.
      */
-    public function redirView(string $viewName, array $data = array())
+    public function redir(string $dir, array $data = array())
     {
-        $path = $this->rootPath() . "views/" . $viewName . "View.php";
-        if (!file_exists($path)) throw new Exception("View doesn't exists in views folder ($path).");
         $dcount = sizeof($data);
         if ($dcount > 0) {
             $keys = array_keys($data);
-            $viewName .= "?" . $keys[0] . "=" . $data[$keys[0]];
-            for ($i = 1; $i < $dcount; $i++) $viewName .= "&" . $keys[$i] . "=" . $data[$keys[$i]];
+            $dir .= "?" . $keys[0] . "=" . $data[$keys[0]];
+            for ($i = 1; $i < $dcount; $i++) $dir .= "&" . $keys[$i] . "=" . $data[$keys[$i]];
         }
-        header("Location: $path");
+        header("Location: $dir");
     }
     /**
      * Show on screen variables from server.
@@ -404,11 +401,13 @@ class DBModel extends MVC
     /**
      * Creates a new DBModel.
      * @param SQLTable $table Defines the sql table wich is the base for DBModel.
+     * @param int $level (Optional) Folder level for the file. By default is 1 for MVC.
      * @return DBModel
      */
-    public function __construct(SQLTable $table)
+    public function __construct(SQLTable $table, int $level = 1)
     {
         $this->table = $table;
+        $this->level = $level;
     }
     /**
      * Return the value of a private field on class.
@@ -637,6 +636,15 @@ class DBModel extends MVC
 class View extends MVC
 {
     /**
+     * Creates a new View.
+     * @param int $level (Optional) Folder level for the file. By default is 1 for MVC.
+     * @return View
+     */
+    public function __construct(int $level = 1)
+    {
+        $this->level = $level;
+    }
+    /**
      * Includes a component file while rendering, $data is an optional associative array to send data to component.
      * @param string $componentName Name of the component to be included.
      * @param array $data (Optional) Additional data to be send to the component.
@@ -670,6 +678,7 @@ class View extends MVC
  * @method void sendError(string $message) Send an error message
  * @method void addAction(string $name, function $action) Create a new action for the controller. $name is the name of the action and $action is an anonymous functions with the action content.
  * @method void processAction(string $actionName) Process action from the action array.
+ * @method array checkPOSTData(string[] $dataIndexes) Verify if $dataIndexes exists as indexes on superglobal $_POST and returns variables on associative array.
  */
 class Controller extends MVC
 {
@@ -678,6 +687,15 @@ class Controller extends MVC
      * @var array
      */
     private $actions = array();
+    /**
+     * Creates a new Controller.
+     * @param int $level (Optional) Folder level for the file. By default is 1 for MVC.
+     * @return Controller
+     */
+    public function __construct(int $level = 1)
+    {
+        $this->level = $level;
+    }
     /**
      * Send a response message
      * @param string $message Message to be sent.
@@ -722,5 +740,20 @@ class Controller extends MVC
         } catch (Exception $ex) {
             $this->sendError($ex->getMessage());
         }
+    }
+    /**
+     * Verify if $dataIndexes exists as indexes on superglobal $_POST and returns variables on associative array.
+     * @param string[] $dataIndexes String array containing names of indexes to be check on POST.
+     * @return array Associative array containging data from superglobal POST.
+     * @throws Exception When index not found on POST.
+     */
+    public function checkPOSTData(array $dataIndexes)
+    {
+        $data = array();
+        foreach ($dataIndexes as $dataIndex) {
+            if (!isset($_POST[$dataIndex])) throw new Exception("No valid data received on POST.");
+            $data[$dataIndex] = $_POST[$dataIndex];
+        }
+        return $data;
     }
 }
