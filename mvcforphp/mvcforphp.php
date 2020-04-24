@@ -5,7 +5,7 @@
  * This classes allow users to manage most common operations with databases, based on mysqli functions. It also includes support for MVC components.
  * @author Daniel F. Rivera C.
  * @author tutordesoftware@gmail.com
- * @version 2.2
+ * @version 2.2.1
  * @package mvcforphp
  */
 //PHP error checking
@@ -678,6 +678,7 @@ class View extends MVC
  * @method void sendError(string $message) Send an error message
  * @method void addAction(string $name, function $action) Create a new action for the controller. $name is the name of the action and $action is an anonymous functions with the action content.
  * @method void processAction(string $actionName) Process action from the action array.
+ * @method array checkPOSTData(string[] $dataIndexes) Verify if $dataIndexes exists as indexes on superglobal $_POST and returns variables on associative array.
  */
 class Controller extends MVC
 {
@@ -739,5 +740,20 @@ class Controller extends MVC
         } catch (Exception $ex) {
             $this->sendError($ex->getMessage());
         }
+    }
+    /**
+     * Verify if $dataIndexes exists as indexes on superglobal $_POST and returns variables on associative array.
+     * @param string[] $dataIndexes String array containing names of indexes to be check on POST.
+     * @return array Associative array containging data from superglobal POST.
+     * @throws Exception When index not found on POST.
+     */
+    public function checkPOSTData(array $dataIndexes)
+    {
+        $data = array();
+        foreach ($dataIndexes as $dataIndex) {
+            if (!isset($_POST[$dataIndex])) throw new Exception("No valid data received on POST.");
+            $data[$dataIndex] = $_POST[$dataIndex];
+        }
+        return $data;
     }
 }
