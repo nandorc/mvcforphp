@@ -5,7 +5,7 @@
  * This classes allow users to manage most common operations with databases, based on mysqli functions. It also includes support for MVC components.
  * @author Daniel F. Rivera C.
  * @author tutordesoftware@gmail.com
- * @version 2.2
+ * @version 2.2.1
  * @package mvcforphp
  */
 //PHP error checking
