@@ -8,6 +8,7 @@ $controller->addAction("test", function () use ($controller, $users) {
     try {
         $usersDB = $users->getAll();
         foreach ($usersDB as $user) echo "$user <br/>";
+        echo $users->lastIndex;
     } catch (Exception $ex) {
         $controller->sendError($ex->getMessage());
     }

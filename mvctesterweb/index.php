@@ -1,5 +1,6 @@
 <?php
-//Validate and redirect to main page
+require_once "resources/scripts/mvcforphp.php";
+$mvc = new MVC(0);
 if (true) {
-    header("Location: home");
+    $mvc->redir("home");
 }
