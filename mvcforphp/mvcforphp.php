@@ -767,7 +767,7 @@ class Controller extends MVC
     #endregion
     #region public toJSONArray method
     /**
-     * Write as on a JSON array format a list of Models
+     * Write on a JSON array format a list of Models
      * @param array $models array of Model elements to be formatted
      * @return string Text on JSON format for the array
      */
