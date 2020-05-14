@@ -5,7 +5,7 @@
  * This classes allow users to manage most common operations with databases, based on mysqli functions. It also includes support for MVC components.
  * @author Daniel F. Rivera C.
  * @author tutordesoftware@gmail.com
- * @version 2.2.2
+ * @version 2.2.3
  * @package mvcforphp
  */
 #endregion
@@ -747,6 +747,7 @@ class Controller extends MVC
     }
     #endregion
     #endregion
+    #region MISC METHODS
     #region public checkPOSTData method
     /**
      * Verify if $dataIndexes exists as indexes on superglobal $_POST and returns variables on associative array.
@@ -763,6 +764,24 @@ class Controller extends MVC
         }
         return $data;
     }
+    #endregion
+    #region public toJSONArray method
+    /**
+     * Write as on a JSON array format a list of Models
+     * @param array $models array of Model elements to be formatted
+     * @return string Text on JSON format for the array
+     */
+    public function toJSONArray(array $models)
+    {
+        $response = "[";
+        if (sizeof($models) > 0) {
+            $response .= $models[0];
+            for ($i = 1; $i < sizeof($models); $i++) $response .= "," . $models[$i];
+        }
+        $response .= "]";
+        return $response;
+    }
+    #endregion
     #endregion
     #endregion
 }
