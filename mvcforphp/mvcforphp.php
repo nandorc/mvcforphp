@@ -407,7 +407,7 @@ class DBModel extends MVC
     private function connect()
     {
         try {
-            $path = $this->rootPath() . "resources/scripts/dbconf.json";
+            $path = $this->rootPath() . "resources/scripts/mvcforphp/dbconf.json";
             if (!file_exists($path)) throw new Exception("No dbconf.json file found.");
             $dbconf = json_decode(file_get_contents($path), true);
             $hostname = (isset($dbconf["hostname"]) && $dbconf["hostname"] != "") ? $dbconf["hostname"] : "localhost";

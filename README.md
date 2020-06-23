@@ -18,8 +18,9 @@ In order to use this library your web project must look like this
       - icon.ico (optional)
       - [AdditionalImagesHere...]
     - scripts
-      - mvcforphp.php
-      - dbconf.json (optional)
+      - mvcforphp
+        - mvcforphp.php
+        - dbconf.json (optional)
       - [EachPersonalCSSLibsHere...]
       - [EachPersonalJSLibsHere...]
     - videos
