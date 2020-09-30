@@ -1,6 +1,6 @@
 #If can't display php error, or doesn't create error_log file, uncomment next line and try again
 #if server error appear, comment it again.
-#php_flag display_errors on
+php_flag display_errors on
 
 Options -Indexes
 
@@ -8,12 +8,11 @@ Options -Indexes
 
 RewriteEngine On
 
-#If testing on localhost should put project uncomment and replace ProjectName
-RewriteBase /ProjectName
-#If testing on hosting uncomment
-#RewriteBase /
+#For local testing include project folder name on RewriteBase (for example /projectname)
+RewriteBase /
 
 #Rewrite rules for the site
+
 RewriteRule ^$ index.php [R]
 RewriteRule ^audios/(.*)$ resources/audios/$1 [R,NC]
 RewriteRule ^docs/(.*)$ resources/docs/$1 [R,NC]

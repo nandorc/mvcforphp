@@ -1,7 +1,9 @@
 <?php
 //Variables for the Template
-if (!isset($data["title"]))
-    $data["title"] = "";
+$title = isset($data["title"]) ? $data["title"] : "";
+$errormsg = isset($data["errormsg"]) ? $data["errormsg"] : "";
+$infomsg = isset($data["infomsg"]) ? $data["infomsg"] : "";
+View::validateMessages($errormsg, $infomsg);
 ?>
 <!DOCTYPE html>
 <html>
@@ -20,41 +22,26 @@ if (!isset($data["title"]))
     <meta name="author" content="" />
 
     <!-- Page title -->
-    <title><?= $data["title"]; ?></title>
+    <title><?= $title; ?></title>
 
     <!-- Page icon -->
-    <!-- <link rel="icon" href="[iconPath]" /> -->
+    <!--<link rel="icon" href="" />-->
 
     <!-- CSS Libraries -->
     <!-- Own library -->
-    <!-- <link rel="stylesheet" href="[jsLibraryPath]" /> -->
+    <!--<link rel="stylesheet" href="" />-->
 </head>
 
 <body>
-    <!-- Header for the Web Page -->
-    <header>
-        Header content here...
-    </header>
-
-    <!-- Navbar for the Web Page -->
-    <nav>
-        Navigation bar definition here...
-    </nav>
-
-    <!-- Main content of the page -->
     <main>
-        <!-- Keep next line in order to show extra content defined for page -->
+        <?php if ($infomsg != "") echo $infomsg; ?>
+        <?php if ($errormsg != "") echo $errormsg; ?>
         <?= $content(); ?>
     </main>
 
-    <!-- Footer for the Web Page -->
-    <footer>
-        Footer definition and content goes here...
-    </footer>
-
     <!-- JS Libraries -->
     <!-- Own library -->
-    <!-- <script src="[ownJSLibraryPath]"></script> -->
+    <!--<script src=""></script>-->
 </body>
 
 </html>

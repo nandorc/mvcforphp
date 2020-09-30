@@ -1,6 +1,3 @@
 <?php
-require_once "[mcvforphpPath]";
-$view = new View();
-if (true) {
-    $view->render();
-}
+require_once "../resources/scripts/mvcforphp/mvcforphp.php";
+View::render();

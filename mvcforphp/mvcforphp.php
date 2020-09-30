@@ -5,7 +5,7 @@
  * This classes allow users to manage most common operations with databases, based on mysqli functions. It also includes support for MVC components.
  * @author Daniel F. Rivera C.
  * @author tutordesoftware@gmail.com
- * @version 2.2.3
+ * @version 3.0
  * @package mvcforphp
  */
 #endregion
@@ -22,40 +22,7 @@ session_start();
  */
 class MVC
 {
-    #region ATTRIBUTES
-    /**
-     * Folder level for the component, based on file folder level. 0 for root folder and 1 by default.
-     * @var int
-     */
-    protected $level;
-    #endregion
-    #region CONSTRUCTOR
-    /**
-     * @param int $level (Optional) Folder level for the component, based on file folder level. 0 for root folder and 1 by default.
-     * @return MVC
-     * @throws Exception If $level is a negative value.
-     */
-    public function __construct(int $level = 1)
-    {
-        if ($level < 0) throw new Exception("Level must be greater or equal than 0");
-        $this->level = $level;
-    }
-    #endregion
     #region METHODS
-    #region public useModel method
-    /**
-     * Include model files to use on code based on $modelName.
-     * @param string $modelName Name of the model to be included.
-     * @return void
-     * @throws Exception When model doesn't exists on models folder.
-     */
-    public function useModel(string $modelName)
-    {
-        $path = $this->rootPath() . "models/" . $modelName . ".php";
-        if (!file_exists($path)) throw new Exception("Model doesn't exists in models folder ($path).");
-        require_once $path;
-    }
-    #endregion
     #region public redir method
     /**
      * Redirect to the specified $dir. Optional $data could be sent.
@@ -86,18 +53,6 @@ class MVC
     {
         $keys = array_keys($_SERVER);
         foreach ($keys as $key) echo $key . " - " . $_SERVER[$key] . "<br/>";
-    }
-    #endregion
-    #region protected rootPath method
-    /**
-     * Constructs root path based on class defined $level.
-     * @return string
-     */
-    protected function rootPath()
-    {
-        $rootPath = "";
-        for ($i = 0; $i < $this->level; $i++) $rootPath .= "../";
-        return $rootPath;
     }
     #endregion
     #endregion
@@ -284,10 +239,10 @@ class SQLClauses
                 $count = sizeof($this->wherePairs);
                 if ($count > 0) {
                     $wherePair = explode(":", $this->wherePairs[0]);
-                    $clause = $wherePair[0] . "='" . $wherePair[1] . "'";
+                    $clause = $wherePair[0] . $wherePair[2] . "'" . $wherePair[1] . "'";
                     for ($i =  1; $i < $count; $i++) {
                         $wherePair = explode(":", $this->wherePairs[$i]);
-                        $clause = $clause . " and " . $wherePair[0] . "='" . $wherePair[1] . "'";
+                        $clause = $clause . " and " . $wherePair[0] . $wherePair[2] . "'" . $wherePair[1] . "'";
                     }
                 }
                 break;
@@ -316,6 +271,7 @@ class SQLClauses
                 for ($i =  0; $i < $count; $i++) {
                     $wherePair = explode(":", $value[$i]);
                     if (!isset($wherePair[1])) throw new Exception("No value especified for where clause field.");
+                    else if (!isset($wherePair[2]) || $wherePair[2] == "") $value[$i] = $wherePair[0] . ":" . $wherePair[1] . ":=";
                 }
                 break;
             case "orderPairs":
@@ -334,7 +290,7 @@ class SQLClauses
     /**
      * Creates a new SQLClauses.
      * @param string[] $fields Defines a field list. If not defined an empty array() must be put.
-     * @param string[] $wherePairs Defines a WHERE clause content. Each string element must be written as a "[name]:[value]" pair. If not defined an empty array() must be put.
+     * @param string[] $wherePairs Defines a WHERE clause content. Each string element must be written in "[name]:[value]:[type]" format. If type is not definen, it would be = by default. If not defined an empty array() must be put.
      * @param string[] $orderPairs Defines an ORDER BY clause content. Each string element must be written as a "[name]:[value]" pair. If value is not defined, it would be asc by default. If not defined an empty array() must be put.
      * @return SQLClauses
      * @throws Exception If no value is specified in a $wherePairs array value.
@@ -342,17 +298,7 @@ class SQLClauses
     public function __construct(array $fields = array(), array $wherePairs = array(), array $orderPairs = array())
     {
         $this->fields = $fields;
-        $count = sizeof($wherePairs);
-        for ($i =  0; $i < $count; $i++) {
-            $wherePair = explode(":", $wherePairs[$i]);
-            if (!isset($wherePair[1])) throw new Exception("No value especified for where clause field.");
-        }
         $this->wherePairs = $wherePairs;
-        $count = sizeof($orderPairs);
-        for ($i = 0; $i < $count; $i++) {
-            $orderPair = explode(":", $orderPairs[$i]);
-            if (!isset($orderPair[1]) || $orderPair[1] == "") $orderPairs[$i] = $orderPair[0] . ":asc";
-        }
         $this->orderPairs = $orderPairs;
     }
     #endregion
@@ -383,13 +329,10 @@ class DBModel extends MVC
     #region CONSTRUCTOR
     /**
      * @param SQLTable $table Defines the sql table wich is the base for DBModel.
-     * @param int $level (Optional) Folder level for the model, based on file folder level. 0 for root folder and 1 by default.
      * @return DBModel
-     * @throws Exception If $level is a negative value.
      */
-    public function __construct(SQLTable $table, int $level = 1)
+    public function __construct(SQLTable $table)
     {
-        parent::__construct($level);
         $this->lastIndex = 0;
         $this->table = $table;
     }
@@ -407,7 +350,7 @@ class DBModel extends MVC
     private function connect()
     {
         try {
-            $path = $this->rootPath() . "resources/scripts/mvcforphp/dbconf.json";
+            $path = "../resources/scripts/mvcforphp/dbconf.json";
             if (!file_exists($path)) throw new Exception("No dbconf.json file found.");
             $dbconf = json_decode(file_get_contents($path), true);
             $hostname = (isset($dbconf["hostname"]) && $dbconf["hostname"] != "") ? $dbconf["hostname"] : "localhost";
@@ -431,14 +374,14 @@ class DBModel extends MVC
         }
     }
     #endregion
-    #region public runQuery method
+    #region private runQuery method
     /**
      * Excecute a SQL Query
      * @param string $sqlQuery Text with SQL Query to execute.
      * @return mysqli_result if query succeed
      * @throws Exception if query failed
      */
-    public function runQuery(string $sqlQuery)
+    private function runQuery(string $sqlQuery)
     {
         try {
             $connection = $this->connect();
@@ -453,13 +396,13 @@ class DBModel extends MVC
         }
     }
     #endregion
-    #region public runTransaction method
+    #region private runTransaction method
     /**
      * Execute a SQL Transaction
      * @param string $sqlTransaction Text with SQL Transaction to execute
      * @throws Exception if transaction failed
      */
-    public function runTransaction(string $sqlTransaction)
+    private function runTransaction(string $sqlTransaction)
     {
         try {
             $connection = $this->connect();
@@ -473,14 +416,50 @@ class DBModel extends MVC
         }
     }
     #endregion
+    #region public executeCustomQuery method
+    /**
+     * Excecute a Custom SQL Query
+     * @param string $sqlQuery Text with SQL Query to execute.
+     * @return Model[] List of elements obtained by the query
+     * @throws Exception If something fail getting data.
+     */
+    public function executeCustomQuery(string $sqlQuery)
+    {
+        try {
+            $list = array();
+            $resultsDB = $this->runQuery($sqlQuery);
+            if ($resultsDB->num_rows > 0) while ($result = $resultsDB->fetch_assoc()) $list[] = new Model($result);
+            return $list;
+        } catch (Exception $ex) {
+            throw new Exception("Something failed getting data: " . $ex->getMessage());
+        }
+    }
     #endregion
+    #region public executeCustomTransaction method
+    /**
+     * Execute a SQL Transaction
+     * @param string $sqlTransaction Text with SQL Transaction to execute
+     * @return void If operation succeed.
+     * @throws Exception if transaction failed
+     */
+    public function executeCustomTransaction(string $sqlTransaction)
+    {
+        try {
+            $this->runTransaction($sqlTransaction);
+        } catch (Exception $ex) {
+            throw new Exception("Something failed deleting data: " . $ex->getMessage());
+        }
+    }
+
+    #endregion
+    #endregion
+    #region CRUD METHODS
     #region SELECT METHODS
     #region public getAll method
     /**
      * Get all rows from a table model.
      * @param SQLClauses $queryConf (Optional) Options for query.
      * @return Model[] List of elements obtained by the query.
-     * @throws Exception If no table is defined when using this function.
      * @throws Exception If something fail getting data.
      */
     public function getAll(SQLClauses $queryConf = null)
@@ -634,6 +613,7 @@ class DBModel extends MVC
     #endregion
     #endregion
     #endregion
+    #endregion
 }
 #endregion
 #region VIEW CLASS
@@ -643,19 +623,20 @@ class DBModel extends MVC
 class View extends MVC
 {
     #region METHODS
-    #region public useComponent method
+    #region ELEMENT METHODS
+    #region public static insertComponent method
     /**
-     * Includes a component file while rendering, $data is an optional associative array to send data to component.
+     * Inserts a component from a file while rendering, $data is an optional associative array to send data to component.
      * @param string $componentName Name of the component to be included.
      * @param array $data (Optional) Additional data to be send to the component.
      * @return void
      * @throws Exception When component doesn't exists on components folder.
      */
-    public function useComponent(string $componentName, array $data = array())
+    public static function insertComponent(string $componentName, array $data = array())
     {
-        $path = $this->rootPath() . "views/shared/components/" . $componentName . ".php";
+        $path = "../views/shared/components/" . $componentName . ".php";
         if (!file_exists($path)) throw new Exception("Component doesn't exists in components folder ($path).");
-        require_once $path;
+        require $path;
     }
     #endregion
     #region public render method
@@ -665,13 +646,91 @@ class View extends MVC
      * @param array $data (Optional) Additional data to be send to the page.
      * @return void
      */
-    public function render($content = null, array $data = array())
+    public static function render($content = null, array $data = array())
     {
         if ($content == null) $content = function () {
             echo "No content defined for view";
         };
-        require_once $this->rootPath() . "views/shared/template.php";
+        require_once "../views/shared/template.php";
     }
+    #endregion
+    #endregion
+    #region MISC METHODS
+    #region public static validateMessage method
+    /**
+     * Validate and modify vars assigned to manage info and error messages from de page.
+     * @param string $errormsg Assigned variable to manage error messages.
+     * @param string $infomsg Assigned variable to manage information messages.
+     * @return void
+     */
+    public static function validateMessages(string &$errormsg, string &$infomsg)
+    {
+        if (isset($_GET["errormsg"]) || isset($_GET["infomsg"])) {
+            $uri = $_SERVER["REQUEST_URI"];
+            $query = self::extractQuery($uri);
+            $view = self::getViewName($uri);
+            if (isset($_GET["errormsg"])) self::moveGetToSession("errormsg", $query);
+            if (isset($_GET["infomsg"])) self::moveGetToSession("infomsg", $query);
+            $dir = ($query == "") ? $view : $view . "?" . $query;
+            header("Location: $dir");
+        } else {
+            if (isset($_SESSION["errormsg"])) self::moveSessionToVar("errormsg", $errormsg);
+            if (isset($_SESSION["infomsg"])) self::moveSessionToVar("infomsg", $infomsg);
+        }
+    }
+    #endregion
+    #region private static extractQuery method
+    /**
+     * Modify $uri removing query string and returning it as new variable.
+     * @param string $uri Assigned variable for requested url
+     * @return string Query string from requested url
+     */
+    private static function extractQuery(string &$uri)
+    {
+        $uriquery = explode("?", $uri);
+        $uri = $uriquery[0];
+        return (count($uriquery) == 2) ? $uriquery[1] : "";
+    }
+    #endregion
+    #region private static getViewName method
+    /**
+     * Formats $uri to return the view name
+     * @param string $uri URL to be check
+     * @return string View name
+     */
+    private static function getViewName(string $uri)
+    {
+        $viewdir = explode("/", $uri);
+        return $viewdir[count($viewdir) - 1];
+    }
+    #endregion
+    #region private static moveGetToSession method
+    /**
+     * Takes a variable in $_GET and move it to $_SESSION and removes it from assigned $query
+     * @param string $name Variable name to be moved
+     * @param string $query Assigned query string to be altered
+     * @return void
+     */
+    private static function moveGetToSession(string $name, string &$query)
+    {
+        $_SESSION[$name] = $_GET[$name];
+        $pos = strpos($query, $name);
+        $query = ($pos == 0) ? "" : substr($query, 0, $pos - 1);
+    }
+    #endregion
+    #region private static moveSessionToVar method
+    /**
+     * Takes a variable in $_SESSION and move it to an assigned $var and unset $_SESSION variable
+     * @param string $name Variable name to be moved
+     * @param mixed $var Assigned variable to receive new value.
+     * @return void
+     */
+    private static function moveSessionToVar(string $name, &$var)
+    {
+        $var = $_SESSION[$name];
+        unset($_SESSION[$name]);
+    }
+    #endregion
     #endregion
     #endregion
 }
@@ -691,24 +750,24 @@ class Controller extends MVC
     #endregion
     #region METHODS
     #region SEND METHODS
-    #region public sendResponse method
+    #region public static sendResponse method
     /**
      * Send a response message
      * @param string $message Message to be sent.
      * @return void
      */
-    public function sendResponse(string $message)
+    public static function sendResponse(string $message)
     {
         echo "OK: $message";
     }
     #endregion
-    #region public sendError method
+    #region public static sendError method
     /**
      * Send an error message
      * @param string $message Message to be sent.
      * @return void
      */
-    public function sendError(string $message)
+    public static function sendError(string $message)
     {
         echo "Error: $message";
     }
@@ -748,30 +807,45 @@ class Controller extends MVC
     #endregion
     #endregion
     #region MISC METHODS
-    #region public checkPOSTData method
+    #region public static useModel method
+    /**
+     * Include model files to use on code based on $modelName.
+     * @param string $modelName Name of the model to be included.
+     * @return DBModel Containing the object model to make operations.
+     * @throws Exception When model doesn't exists on models folder.
+     */
+    public static function useModel(string $modelName)
+    {
+        $path = "../models/" . $modelName . ".php";
+        if (!file_exists($path)) throw new Exception("Model doesn't exists in models folder ($path).");
+        $model = require_once $path;
+        return new DBModel($model);
+    }
+    #endregion
+    #region public static checkPOSTData method
     /**
      * Verify if $dataIndexes exists as indexes on superglobal $_POST and returns variables on associative array.
      * @param string[] $dataIndexes String array containing names of indexes to be check on POST.
-     * @return array Associative array containging data from superglobal POST.
+     * @return Model Containing data from superglobal POST.
      * @throws Exception When index not found on POST.
      */
-    public function checkPOSTData(array $dataIndexes)
+    public static function checkPOSTData(array $dataIndexes)
     {
         $data = array();
         foreach ($dataIndexes as $dataIndex) {
             if (!isset($_POST[$dataIndex])) throw new Exception("No valid data received on POST.");
             $data[$dataIndex] = $_POST[$dataIndex];
         }
-        return $data;
+        return new Model($data);
     }
     #endregion
-    #region public toJSONArray method
+    #region public static toJSONArray method
     /**
      * Write on a JSON array format a list of Models
      * @param array $models array of Model elements to be formatted
      * @return string Text on JSON format for the array
      */
-    public function toJSONArray(array $models)
+    public static function toJSONArray(array $models)
     {
         $response = "[";
         if (sizeof($models) > 0) {

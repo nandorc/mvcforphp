@@ -1,6 +1,4 @@
 <?php
-require_once "[mcvforphpPath]";
+require_once "../resources/scripts/mvcforphp/mvcforphp.php";
 $controller = new Controller();
-if (true) {
-    $controller->processAction($_GET["action"]);
-}
+$controller->processAction($_GET["action"]);
