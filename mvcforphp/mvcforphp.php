@@ -769,7 +769,7 @@ class Controller extends MVC
      */
     public static function sendResponse(string $message)
     {
-        echo "OK: $message";
+        echo $message;
     }
     #endregion
     #region public static sendError method
@@ -780,7 +780,7 @@ class Controller extends MVC
      */
     public static function sendError(string $message)
     {
-        echo "Error: $message";
+        header($_SERVER["SERVER_PROTOCOL"] . ' 400 Bad Request: Error: ' . $message);
     }
     #endregion
     #endregion
