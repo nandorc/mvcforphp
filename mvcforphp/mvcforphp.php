@@ -298,7 +298,18 @@ class SQLClauses
     public function __construct(array $fields = array(), array $wherePairs = array(), array $orderPairs = array())
     {
         $this->fields = $fields;
+        $count = sizeof($wherePairs);
+        for ($i =  0; $i < $count; $i++) {
+            $wherePair = explode(":", $wherePairs[$i]);
+            if (!isset($wherePair[1])) throw new Exception("No value especified for where clause field.");
+            else if (!isset($wherePair[2]) || $wherePair[2] == "") $wherePairs[$i] = $wherePair[0] . ":" . $wherePair[1] . ":=";
+        }
         $this->wherePairs = $wherePairs;
+        $count = sizeof($orderPairs);
+        for ($i = 0; $i < $count; $i++) {
+            $orderPair = explode(":", $orderPairs[$i]);
+            if (!isset($orderPair[1]) || $orderPair[1] == "") $orderPairs[$i] = $orderPair[0] . ":asc";
+        }
         $this->orderPairs = $orderPairs;
     }
     #endregion
