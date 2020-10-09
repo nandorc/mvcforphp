@@ -806,14 +806,10 @@ class Controller extends MVC
      */
     public function processAction(string $actionName)
     {
-        try {
-            $actionsCount = sizeof($this->actions);
-            if ($actionsCount == 0) $this->redir("index.php");
-            if (!array_key_exists($actionName, $this->actions)) throw new Exception("No action or no valid action sent");
-            $this->actions[$actionName]();
-        } catch (Exception $ex) {
-            $this->sendError($ex->getMessage());
-        }
+        $actionsCount = sizeof($this->actions);
+        if ($actionsCount == 0) $this->redir("index.php");
+        if (!array_key_exists($actionName, $this->actions)) throw new Exception("No action or no valid action sent");
+        $this->actions[$actionName]();
     }
     #endregion
     #endregion
