@@ -1,3 +1,6 @@
 <?php
-require_once "../resources/scripts/mvcforphp/mvcforphp.php";
+require_once "../vendor/autoload.php";
+
+use MVC4PHP\View;
+
 View::render();

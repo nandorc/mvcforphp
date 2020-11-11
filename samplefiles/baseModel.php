@@ -1,5 +1,7 @@
 <?php
-#region MODEL DATA (CONFIGURE ACCORDING TO DB ENTITY)
+
+use MVC4PHP\SQLTable;
+
 /**
  * Defines the name of the entity on relational DB.
  * @var string
@@ -17,7 +19,4 @@ $fields = array();
  * @var string
  */
 $pk = "";
-#endregion
-#region Returned value when required
 return new SQLTable($name, $fields, $pk);
-#endregion

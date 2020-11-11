@@ -1,4 +1,6 @@
 <?php
+
+use MVC4PHP\View;
 //Variables for the Template
 $title = isset($data["title"]) ? $data["title"] : "";
 $errormsg = isset($data["errormsg"]) ? $data["errormsg"] : "";
