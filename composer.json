@@ -1,0 +1,25 @@
+{
+    "name": "dsoft/mvc4php",
+    "type": "library",
+    "description": "This package allow users to manage most common operations with databases, based on mysqli functions. It also includes support for MVC components.",
+    "keywords": [
+        "MVC",
+        "DBMS",
+        "mysqli"
+    ],
+    "homepage": "https://github.com/nandorc/mvcforphp",
+    "license": "MIT",
+    "authors": [{
+        "name": "Daniel F. Rivera C.",
+        "email": "tutordesoftware@gmail.com",
+        "role": "Developer"
+    }],
+    "require": {
+        "php": "^7.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "MVC4PHP\\": "src/MVC4PHP"
+        }
+    }
+}

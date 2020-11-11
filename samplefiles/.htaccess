@@ -1,0 +1,19 @@
+#If can't display php error, or doesn't create error_log file, uncomment next line and try again
+#if server error appear, comment it again.
+#php_flag display_errors on
+Options -Indexes
+<IfModule mod_rewrite.c>
+RewriteEngine On
+#For local testing include project folder name on RewriteBase (for example /projectname)
+RewriteBase /
+#Rewrite rules for the site
+RewriteRule ^$ index.php [L,R]
+RewriteRule ^audios/(.*)$ resources/audios/$1 [L,NC,R]
+RewriteRule ^docs/(.*)$ resources/docs/$1 [L,NC,R]
+RewriteRule ^images/(.*)$ resources/images/$1 [L,NC,R]
+RewriteRule ^styles/(.*)$ resources/scripts/$1 [L,NC,R,T=text/css]
+RewriteRule ^scripts/(.*)$ resources/scripts/$1 [L,NC,R]
+RewriteRule ^videos/(.*)$ resources/videos/$1 [L,NC,R]
+RewriteRule ^([A-Za-z0-9]*)$ views/$1View.php [L,NC]
+RewriteRule ^([A-Za-z0-9]*)/([A-Za-z0-9]*)$ controllers/$1Controller.php?action=$2 [L,NC,QSA]
+</IfModule>
