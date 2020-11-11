@@ -17,7 +17,7 @@ class MVC
     public function redir(string $dir, array $data = array())
     {
         if (substr($dir, 0, 8) == "file:///") throw new Exception("Can't redir to a file.");
-        if (get_class($this) == "Controller" && substr($dir, 0, 7) != "http://" && substr($dir, 0, 8) != "https://") $dir = "../$dir";
+        if (get_class($this) == "MVC4PHP\Controller" && substr($dir, 0, 7) != "http://" && substr($dir, 0, 8) != "https://") $dir = "../$dir";
         $dcount = sizeof($data);
         if ($dcount > 0) {
             $keys = array_keys($data);
