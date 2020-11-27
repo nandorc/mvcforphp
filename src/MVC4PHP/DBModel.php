@@ -56,7 +56,7 @@ class DBModel
     private function connect()
     {
         try {
-            $path = "../resources/scripts/mvcforphp/dbconf.json";
+            $path = "../resources/scripts/mvc4php/dbconf.json";
             if (!file_exists($path)) throw new Exception("No dbconf.json file found.");
             $dbconf = json_decode(file_get_contents($path), true);
             $hostname = (isset($dbconf["hostname"]) && $dbconf["hostname"] != "") ? $dbconf["hostname"] : "localhost";
