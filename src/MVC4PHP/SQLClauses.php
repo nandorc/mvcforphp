@@ -49,6 +49,17 @@ class SQLClauses
         }
         return $clause;
     }
+    public function __set($name, $value)
+    {
+        if ($name != "fields" && $name != "wherePairs" && $name != "orderPairs")
+            throw new Exception("Trying to access to an unknown property");
+        else if ($name == "fields")
+            $this->fields = $this->validateFields($value);
+        else if ($name == "wherePairs")
+            $this->wherePairs = $this->validateWherePairs($value);
+        else if ($name == "orderPairs")
+            $this->orderPairs = $this->validateOrderPairs($value);
+    }
     /**
      * Creates a new SQLClauses.
      * @param array $clauses Associative array which contains info for optional fields, wherePairs or orderPairs. Each one defined if needed as a key for the array.
@@ -64,27 +75,23 @@ class SQLClauses
      */
     public function __construct(array $clauses)
     {
-        if ($this->checkStringArray("fields", $clauses))
-            $this->fields = $clauses["fields"];
+        if (isset($clauses["fields"]))
+            $this->fields = $this->validateFields($clauses["fields"]);
         if (isset($clauses["wherePairs"]))
             $this->wherePairs = $this->validateWherePairs($clauses["wherePairs"]);
-        if ($this->checkStringArray("orderPairs", $clauses))
+        if (isset($clauses["orderPairs"]))
             $this->orderPairs = $this->validateOrderPairs($clauses["orderPairs"]);
     }
     /**
-     * Verify if a received $key in a $master associative array exists, is an array and all its elements are strings.
-     * @param string $key Name of the key to be search
-     * @param array $master Associative array to be checked
-     * @return bool True if all conditions are satisfied and false if $key doesn't exists.
-     * @throws Exception If $key is not an array or its elements are not strings.
+     * Validate data received to construct Fields
+     * @param array $Fields Array data to be check
+     * @return array
+     * @throws Exception If something fails while checking
      */
-    private function checkStringArray(string $key, array $master)
+    private function validateFields(array $fields)
     {
-        if (isset($master[$key])) {
-            if (gettype($master[$key]) != "array") throw new Exception("$key must be an array.");
-            foreach ($master[$key] as $element) if (gettype($element) != "string") throw new Exception("Elements in $key must be strings.");
-            return true;
-        } else return false;
+        $this->checkStringArray($fields);
+        return $fields;
     }
     /**
      * Validate data received to construct WherePairs
@@ -110,9 +117,11 @@ class SQLClauses
      * Validate data received to construct OrderPairs
      * @param array $orderPairs Array data to be check
      * @return array
+     * @throws Exception If something fails while checking
      */
     private function validateOrderPairs(array $orderPairs)
     {
+        $this->checkStringArray($orderPairs);
         $op = array();
         foreach ($orderPairs as $orderPair) {
             $opdata = explode(":", $orderPair);
@@ -120,5 +129,16 @@ class SQLClauses
             $op[] = $opdata;
         }
         return $op;
+    }
+    /**
+     * Verify if all elements in the received array are strings.
+     * @param array $array Array to be checked
+     * @return void If all conditions are satisfied.
+     * @throws Exception If $array is not an array or its elements are not strings.
+     */
+    private function checkStringArray(array $array)
+    {
+        foreach ($array as $element) if (gettype($element) != "string")
+            throw new Exception("Elements in array must be strings.");
     }
 }

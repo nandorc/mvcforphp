@@ -218,6 +218,29 @@ class DBModel
         }
     }
     /**
+     * Update all specified items from a table
+     * @param string[] $newData Array which contains the new data to save on the row.
+     * @param SQLClauses $transConf (Optional) If $newData array has less elements than $table->fields, a SQLClauses->fields must be defined in order to define which fields are going to be send to the UPDATE sentence.
+     * @return void If operation succeed.
+     * @throws Exception If something updating data fail.
+     */
+    public function updateAll(array $newData, SQLClauses $transConf = null)
+    {
+        try {
+            $transConf = $this->validateFieldsCount($newData, $transConf);
+            $dcount = sizeof($newData);
+            $fieldsToChange = explode(",", $transConf->fields);
+            $values = $fieldsToChange[0] . "=" . $this->parseValueOf($fieldsToChange[0], $newData[0]);
+            for ($i = 1; $i < $dcount; $i++) $values .= "," . $fieldsToChange[$i] . "=" . $this->parseValueOf($fieldsToChange[$i], $newData[$i]);
+            $sql = "update " . $this->table->name . " set " . $values;
+            if ($transConf->wherePairs != "") $sql .= " where " . $transConf->wherePairs;
+            $sql .= ";";
+            $this->runTransaction($sql);
+        } catch (Exception $ex) {
+            throw new Exception("Something failed updating data: " . $ex->getMessage());
+        }
+    }
+    /**
      * Update an item from a table depending on id
      * @param string $id PK from the element to update.
      * @param string[] $newData Array which contains the new data to save on the row.
@@ -280,13 +303,17 @@ class DBModel
     {
         $fcount = sizeof($this->table->fieldsarray);
         $dcount = sizeof($data);
-        if ($dcount > $fcount) throw new Exception("Data list can't have more elements than field list.");
-        else if ($dcount < $fcount && $config == null) throw new Exception("If data list has less elements than field list, a fields list must be defined.");
+        if ($dcount > $fcount)
+            throw new Exception("Data list can't have more elements than field list.");
+        else if ($dcount < $fcount && $config == null)
+            throw new Exception("If data list has less elements than field list, a fields list must be defined.");
         else if ($dcount < $fcount) {
             $ccount = sizeof(explode(",", $config->fields));
             if ($dcount != $ccount) throw new Exception("No valid fields list for data list given.");
+        } else if ($config != null) {
+            $config->fields = $this->table->fieldsarray;
         } else {
-            $config = new SQLClauses(array("fields" => $this->table->fieldsarray));
+            $config = new SQLClauses(["fields" => $this->table->fieldsarray]);
         }
         return $config;
     }
