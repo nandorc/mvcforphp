@@ -53,12 +53,11 @@ class View extends MVC
     }
     /**
      * Validate and modify vars assigned to manage info and error messages from de page.
-     * @param string $errormsg Assigned variable to manage error messages.
-     * @param string $infomsg Assigned variable to manage information messages.
-     * @return void
+     * @return array Associative array containing "info" and "error" indexes for messages.
      */
-    public static function validateMessages(string &$errormsg, string &$infomsg)
+    public static function validateMessages()
     {
+        $messages = ["info" => "", "error" => ""];
         if (session_status() != PHP_SESSION_ACTIVE) session_start();
         if (isset($_GET["errormsg"]) || isset($_GET["infomsg"])) {
             $uri = $_SERVER["REQUEST_URI"];
@@ -69,9 +68,10 @@ class View extends MVC
             $dir = ($query == "") ? $view : $view . "?" . $query;
             header("Location: $dir");
         } else {
-            if (isset($_SESSION["errormsg"])) self::moveSessionToVar("errormsg", $errormsg);
-            if (isset($_SESSION["infomsg"])) self::moveSessionToVar("infomsg", $infomsg);
+            if (isset($_SESSION["errormsg"])) self::moveSessionToVar("errormsg", $messages["error"]);
+            if (isset($_SESSION["infomsg"])) self::moveSessionToVar("infomsg", $messages["info"]);
         }
+        return $messages;
     }
     /**
      * Modify $uri removing query string and returning it as new variable.
