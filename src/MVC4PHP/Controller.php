@@ -6,14 +6,35 @@ use Exception;
 
 /**
  * Class for defining site Controllers.
+ * @property string $redirpoint URI point to redirect in case of errors.
  */
 class Controller extends MVC
 {
+    private $redirpoint = "";
+    public function __get($name)
+    {
+        if ($name != "redirpoint") throw new Exception("Trying to access to no valid property.");
+        return $this->redirpoint;
+    }
+    public function __set($name, $value)
+    {
+        if ($name != "redirpoint") throw new Exception("Trying to access to no valid property.");
+        $this->redirpoint = $value;
+    }
     /**
      * Associative array containig delegate functions for actions.
      * @var array
      */
     private $actions = array();
+    /**
+     * Creates a new Controller
+     * @param string $redirpoint (OPTIONAL) URI point to redirect in case of errors
+     * @return Controller
+     */
+    public function __construct(string $redirpoint = "")
+    {
+        $this->redirpoint = $redirpoint;
+    }
     /**
      * Send a response message
      * @param string $message Message to be sent.
@@ -48,8 +69,12 @@ class Controller extends MVC
      * @return void
      * @throws Exception If no valid action sent to be processed.
      */
-    public function processAction(string $actionName)
+    public function processAction(string $actionName = "")
     {
+        if ($actionName == "" && isset($_GET["action"]))
+            $actionName = $_GET["action"];
+        else if ($actionName == "" && !isset($_GET["action"]))
+            throw new Exception("No action received on controller");
         $actionsCount = sizeof($this->actions);
         if ($actionsCount == 0) $this->redir("index.php");
         if (!array_key_exists($actionName, $this->actions)) throw new Exception("No action or no valid action sent");
