@@ -167,6 +167,7 @@ class DBModel
                 $sql .= " from " . $this->table->name;
                 if ($queryConf->wherePairs != "") $sql .= " where " . $queryConf->wherePairs;
                 if ($queryConf->orderPairs != "") $sql .= " order by " . $queryConf->orderPairs;
+                if ($queryConf->limit != "") $sql .= " " . $queryConf->limit;
                 $sql .= ";";
             }
             $list = array();
@@ -234,6 +235,7 @@ class DBModel
             for ($i = 1; $i < $dcount; $i++) $values .= "," . $fieldsToChange[$i] . "=" . $this->parseValueOf($fieldsToChange[$i], $newData[$i]);
             $sql = "update " . $this->table->name . " set " . $values;
             if ($transConf->wherePairs != "") $sql .= " where " . $transConf->wherePairs;
+            if ($transConf->limit != "") $sql .= " " . $transConf->limit;
             $sql .= ";";
             $this->runTransaction($sql);
         } catch (Exception $ex) {
@@ -272,6 +274,7 @@ class DBModel
         try {
             $sql = "delete from " . $this->table->name;
             if ($transConf != null && $transConf->wherePairs != "") $sql .= " where " . $transConf->wherePairs;
+            if ($transConf != null && $transConf->limit != "") $sql .= " " . $transConf->limit;
             $sql .= ";";
             $this->runTransaction($sql);
         } catch (Exception $ex) {

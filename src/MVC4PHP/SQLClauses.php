@@ -9,15 +9,18 @@ use Exception;
  * @property string $fields Field list formatted as a comma separated list with field names.
  * @property string $wherePairs String formatted as SQL WHERE clause content.
  * @property string $orderPairs String formatted as SQL ORDER BY clause content.
+ * @property string $limit String formatted as SQL LIMIT clause.
  */
 class SQLClauses
 {
-    private $fields = array();
-    private $wherePairs = array();
-    private $orderPairs = array();
+    private $fields = [];
+    private $wherePairs = [];
+    private $orderPairs = [];
+    private $limit = 0;
     public function __get($name)
     {
-        if ($name != "fields" && $name != "wherePairs" && $name != "orderPairs") throw new Exception("Trying to access to an unknown property");
+        if ($name != "fields" && $name != "wherePairs" && $name != "orderPairs" && $name != "limit")
+            throw new Exception("Trying to access to an unknown property");
         $clause = "";
         if ($name == "fields") {
             $count = sizeof($this->fields);
@@ -46,12 +49,15 @@ class SQLClauses
                 for ($i = 1; $i < $count; $i++)
                     $clause .= ", " . DBModel::cleanInputValue($this->orderPairs[$i][0]) . " " . DBModel::cleanInputValue($this->orderPairs[$i][1]);
             }
+        } else if ($name == "limit") {
+            if ($this->limit > 0)
+                $clause .= "limit " . DBModel::cleanInputValue($this->limit);
         }
         return $clause;
     }
     public function __set($name, $value)
     {
-        if ($name != "fields" && $name != "wherePairs" && $name != "orderPairs")
+        if ($name != "fields" && $name != "wherePairs" && $name != "orderPairs" && $name != "limit")
             throw new Exception("Trying to access to an unknown property");
         else if ($name == "fields")
             $this->fields = $this->validateFields($value);
@@ -59,6 +65,8 @@ class SQLClauses
             $this->wherePairs = $this->validateWherePairs($value);
         else if ($name == "orderPairs")
             $this->orderPairs = $this->validateOrderPairs($value);
+        else if ($name == "limit")
+            $this->limit = $this->validateLimit($value);
     }
     /**
      * Creates a new SQLClauses.
@@ -69,6 +77,8 @@ class SQLClauses
      * array "wherePairs" => Defines a WHERE clause content. Each element must be an associative array which can contain "name","value" and "type" index. If "type" is not defined, it would be "=" by default.
      * 
      * string[] "orderPairs" => Defines an ORDER BY clause content. Each string element must be written as a "[name]:[value]" pair. If value is not defined, it would be asc by default.
+     * 
+     * int "limit" => Defines limit value.
      * 
      * @return SQLClauses
      * @throws Exception If no valid values specified on $clauses.
@@ -81,6 +91,8 @@ class SQLClauses
             $this->wherePairs = $this->validateWherePairs($clauses["wherePairs"]);
         if (isset($clauses["orderPairs"]))
             $this->orderPairs = $this->validateOrderPairs($clauses["orderPairs"]);
+        if (isset($clauses["limit"]))
+            $this->limit = $this->validateLimit($clauses["limit"]);
     }
     /**
      * Validate data received to construct Fields
@@ -129,6 +141,19 @@ class SQLClauses
             $op[] = $opdata;
         }
         return $op;
+    }
+    /**
+     * Validate data received to set Limit
+     * @param int $limit Limit value sent
+     * @return int
+     * @throws Exception If something fails while checking
+     */
+    private function validateLimit(int $limit)
+    {
+        if (gettype($limit) != "integer")
+            throw new Exception("Limit must be a integer.");
+        $limit = ($limit < 0) ? 0 : $limit;
+        return $limit;
     }
     /**
      * Verify if all elements in the received array are strings.
