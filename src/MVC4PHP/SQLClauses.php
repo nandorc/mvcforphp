@@ -29,18 +29,15 @@ class SQLClauses
                 for ($i = 1; $i < $count; $i++) $clause .= "," . DBModel::cleanInputValue($this->fields[$i]);
             }
         } else if ($name == "wherePairs") {
-            $count = sizeof($this->wherePairs);
-            if ($count > 0) {
-                $symbol = $this->wherePairs[0]["type"];
-                if ($symbol != "=" && $symbol != "<=>" && $symbol != "<>" && $symbol != "!=" && $symbol != ">" && $symbol != ">=" && $symbol != "<" && $symbol != "<=")
-                    $symbol = DBModel::cleanInputValue($symbol);
-                $clause .= DBModel::cleanInputValue($this->wherePairs[0]["name"]) . $symbol . "'" . DBModel::cleanInputValue($this->wherePairs[0]["value"]) . "'";
-                for ($i =  1; $i < $count; $i++) {
-                    $symbol = $this->wherePairs[$i]["type"];
-                    if ($symbol != "=" && $symbol != "<=>" && $symbol != "<>" && $symbol != "!=" && $symbol != ">" && $symbol != ">=" && $symbol != "<" && $symbol != "<=")
-                        $symbol = DBModel::cleanInputValue($symbol);
-                    $clause .= " and " . DBModel::cleanInputValue($this->wherePairs[$i]["name"]) . $symbol . "'" . DBModel::cleanInputValue($this->wherePairs[$i]["value"]) . "'";
-                }
+            $count = count($this->wherePairs);
+            for ($i =  0; $i < $count; $i++) {
+                if ($i != 0)
+                    $clause .= " " . DBModel::cleanInputValue($this->wherePairs[$i]["conector"]) . " ";
+                if ($this->wherePairs[$i]["prepend"]) $clause .= "(";
+                $clause .= DBModel::cleanInputValue($this->wherePairs[$i]["name"]);
+                $clause .= " " . $this->validateSymbol($this->wherePairs[$i]["type"]) . " ";
+                $clause .= "'" . DBModel::cleanInputValue($this->wherePairs[$i]["value"]) . "'";
+                if ($this->wherePairs[$i]["append"]) $clause .= ")";
             }
         } else if ($name == "orderPairs") {
             $count = sizeof($this->orderPairs);
@@ -74,7 +71,11 @@ class SQLClauses
      * 
      * string[] "fields" => Defines a field list.
      * 
-     * array "wherePairs" => Defines a WHERE clause content. Each element must be an associative array which can contain "name","value" and "type" index. If "type" is not defined, it would be "=" by default.
+     * array "wherePairs" => Defines a WHERE clause content. 
+     * Each element must be an associative array which can contain "name","value", "type",
+     * "prepend", "append" and "conector" indexes. If "type" is not defined, it would 
+     * be "=" by default. If "prepend" or "append" are not defined, would be false by 
+     * default. If "conector" is not defined, it would be "and" by default.
      * 
      * string[] "orderPairs" => Defines an ORDER BY clause content. Each string element must be written as a "[name]:[value]" pair. If value is not defined, it would be asc by default.
      * 
@@ -93,6 +94,17 @@ class SQLClauses
             $this->orderPairs = $this->validateOrderPairs($clauses["orderPairs"]);
         if (isset($clauses["limit"]))
             $this->limit = $this->validateLimit($clauses["limit"]);
+    }
+    /**
+     * Validate symbols for where clauses
+     * @param string $symbol Symbol to be checked
+     * @return string
+     */
+    private function validateSymbol(string $symbol)
+    {
+        if ($symbol != "=" && $symbol != "<=>" && $symbol != "<>" && $symbol != "!=" && $symbol != ">" && $symbol != ">=" && $symbol != "<" && $symbol != "<=")
+            $symbol = DBModel::cleanInputValue($symbol);
+        return $symbol;
     }
     /**
      * Validate data received to construct Fields
@@ -115,13 +127,32 @@ class SQLClauses
     {
         $c = count($wherePairs);
         for ($i = 0; $i < $c; $i++) {
-            if (gettype($wherePairs[$i]) != "array") throw new Exception("Each wherePair must be an array.");
-            else if (!isset($wherePairs[$i]["name"])) throw new Exception("No name defined on wherePair");
-            else if (gettype($wherePairs[$i]["name"]) != "string") throw new Exception("name must be defined as a string");
-            else if (!isset($wherePairs[$i]["value"])) throw new Exception("No value especified for " . $wherePairs[$i]["name"] . " where clause field");
-            else if (gettype($wherePairs[$i]["value"]) != "string") throw new Exception("value must be defined as a string");
-            else if (!isset($wherePairs[$i]["type"])) $wherePairs[$i]["type"] = "=";
-            else if (gettype($wherePairs[$i]["type"]) != "string") throw new Exception("Type for " . $wherePairs[$i]["name"] . " must be defined as a string");
+            if (gettype($wherePairs[$i]) != "array")
+                throw new Exception("Each wherePair must be an array.");
+            if (!isset($wherePairs[$i]["name"]))
+                throw new Exception("No name defined on wherePair");
+            else if (gettype($wherePairs[$i]["name"]) != "string")
+                throw new Exception("name must be defined as a string");
+            if (!isset($wherePairs[$i]["value"]))
+                throw new Exception("No value especified for " . $wherePairs[$i]["name"] . " where clause field");
+            else if (gettype($wherePairs[$i]["value"]) != "string")
+                throw new Exception("value must be defined as a string");
+            if (!isset($wherePairs[$i]["type"]))
+                $wherePairs[$i]["type"] = "=";
+            else if (gettype($wherePairs[$i]["type"]) != "string")
+                throw new Exception("Type for " . $wherePairs[$i]["name"] . " must be defined as a string");
+            if (!isset($wherePairs[$i]["prepend"]))
+                $wherePairs[$i]["prepend"] = false;
+            else if (gettype($wherePairs[$i]["prepend"]) != "boolean")
+                throw new Exception("Prepend for " . $wherePairs[$i]["name"] . " must be defined as a boolean");
+            if (!isset($wherePairs[$i]["append"]))
+                $wherePairs[$i]["append"] = false;
+            else if (gettype($wherePairs[$i]["append"]) != "boolean")
+                throw new Exception("Append for " . $wherePairs[$i]["name"] . " must be defined as a boolean");
+            if (!isset($wherePairs[$i]["conector"]))
+                $wherePairs[$i]["conector"] = "and";
+            else if (gettype($wherePairs[$i]["conector"]) != "string")
+                throw new Exception("Conector for " . $wherePairs[$i]["name"] . " must be defined as a string");
         }
         return $wherePairs;
     }
