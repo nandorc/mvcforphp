@@ -5,8 +5,15 @@ By Daniel F. Rivera C.
 In order to use this library your web project must look like this
 
 - rootFolder
+  - .vscode
+    - sftp.json
   - controllers
     - [EachNewControllerHere...]
+  - documentation
+    - [DBStructureFiles...]
+    - [MockUps...]
+  - mailing
+    - [MailingTemplateFiles...]
   - models
     - [EachNewModelHere...]
   - resources
@@ -18,21 +25,30 @@ In order to use this library your web project must look like this
       - icon.ico (optional)
       - [AdditionalImagesHere...]
     - scripts
-      - mvcforphp
-        - mvcforphp.php
+      - mvc4php
         - dbconf.json (optional)
+        - globals4app.php
+        - globals4controllers.php
+        - globals4views.php
       - [EachPersonalCSSLibsHere...]
       - [EachPersonalJSLibsHere...]
     - videos
       - [VideoFilesHere...]
+  - vendor
+    - [ComposerFilesAndFolders...]
   - views
     - shared
       - components (optional)
         - [EachNewComponentHere...]
       - template.php
     - [EachNewViewHere...]
+  - .gitignore
   - .htaccess
+  - composer.json
+  - composer.lock
   - index.php
+  - LICENSE
+  - README.md
     
 It's important to keep structure like this to get better performance. Also you have to keep in mind the next advices:
 - Controllers must be named with the Controller prefix. Example: userController.php

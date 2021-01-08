@@ -15,7 +15,8 @@
         "role": "Developer"
     }],
     "require": {
-        "php": "^7.2"
+        "php": "^7.2",
+        "phpmailer/phpmailer": "^6.2"
     },
     "autoload": {
         "psr-4": {

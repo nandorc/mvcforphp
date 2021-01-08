@@ -90,7 +90,7 @@ class Controller extends MVC
     {
         $path = "../models/" . $modelName . ".php";
         if (!file_exists($path)) throw new Exception("Model doesn't exists in models folder ($path).");
-        $model = require_once $path;
+        $model = require $path;
         return new DBModel($model);
     }
     /**

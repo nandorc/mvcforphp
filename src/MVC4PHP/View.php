@@ -52,6 +52,66 @@ class View extends MVC
         require_once "../views/shared/template.php";
     }
     /**
+     * Include external resources like stylesheets, js scripts or js modules
+     * @param mixed $ext Data to be check to generate tags.
+     * @param string $type Type of content to be included. Must be style, script or module
+     * @return void If $ext is null
+     * @return string Containing HTML tags for external resources
+     * @throws Exception If something fails during the process
+     */
+    public static function includeexternals($ext, string $type)
+    {
+        if ($ext === null) return;
+        $exttype = self::checkvaltype($ext);
+        if ($exttype == "string") return self::newexternal($ext, $type);
+        else if (
+            count($ext) == 2 &&
+            (gettype($ext[0]) == "string" && gettype($ext[1]) == "string") &&
+            ($ext[0] == "style" || $ext[0] == "script" || $ext[0] == "module")
+        ) return self::newexternal($ext[1], $ext[0]);
+        else {
+            $result = "";
+            foreach ($ext as $e) {
+                $etype = self::checkvaltype($e);
+                if ($etype == "string") $result .= self::newexternal($e, $type);
+                else if (count($e) < 2)
+                    throw new Exception("No enough elements on external reference provided as array.");
+                else if (gettype($e[0]) != "string" || gettype($e[1]) != "string")
+                    throw new Exception("No valid value types on external reference provided as array. Must be strings.");
+                else $result .= self::newexternal($e[1], $e[0]);
+            }
+            return $result;
+        }
+    }
+    /**
+     * Verify if variable type for value is string or array
+     * @param mixed $val Value to be checked
+     * @return string With variable type
+     * @throws Exception If variable type isn't valid
+     */
+    private static function checkvaltype($val)
+    {
+        $valtype = gettype($val);
+        if ($valtype != "string" && $valtype != "array")
+            throw new Exception("No valid data type on for externals. Must be string or array.");
+        return $valtype;
+    }
+    /**
+     * Creates a new external resource HTML tag
+     * @param string $path Path to the resource
+     * @param string $type Type of resource. Must be style, script or module
+     * @return string HTML tag for the external resource
+     * @throws Exception If $type is not valid
+     */
+    private static function newexternal(string $path, string $type)
+    {
+        if ($type != "style" && $type != "script" && $type != "module")
+            throw new Exception("No valid type defined on external reference. Must be style, script or module");
+        else if ($type == "style") return '<link rel="stylesheet" type="text/css" href="' . $path . '">';
+        else if ($type == "script") return '<script src="' . $path . '"></script>';
+        else return '<script type="module" src="' . $path . '"></script>';
+    }
+    /**
      * Validate and modify vars assigned to manage info and error messages from de page.
      * @return array Associative array containing "info" and "error" indexes for messages.
      */

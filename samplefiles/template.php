@@ -1,7 +1,10 @@
 <?php
+
+use MVC4PHP\View;
+
 $title = isset($data["title"]) ? $data["title"] : "";
-$css = isset($data["css"]) ? $data["css"] : array();
-$js = isset($data["js"]) ? $data["js"] : array();
+$css = isset($data["css"]) ? $data["css"] : null;
+$js = isset($data["js"]) ? $data["js"] : null;
 ?>
 <!DOCTYPE html>
 <html>
@@ -14,14 +17,12 @@ $js = isset($data["js"]) ? $data["js"] : array();
     <meta name="author" content="">
     <title><?= $title; ?></title>
     <link rel="icon" href="">
-    <?php if (count($css) > 0) foreach ($css as $c) { ?>
-        <link rel="stylesheet" type="text/css" href="<?= $c; ?>"> <?php } ?>
+    <?= View::includeexternals($css, "style"); ?>
 </head>
 
 <body>
     <?= $content(); ?>
-    <?php if (count($js) > 0) foreach ($js as $j) { ?>
-        <script src="<?= $j; ?>"></script> <?php } ?>
+    <?= View::includeexternals($js, "script"); ?>
 </body>
 
 </html>
