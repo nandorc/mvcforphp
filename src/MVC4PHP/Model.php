@@ -12,7 +12,7 @@ class Model
      * Stores the model data fields as an associative array.
      * @var array
      */
-    private $data = array();
+    private $data = [];
     public function __get($name)
     {
         return $this->data[$name];
@@ -27,14 +27,31 @@ class Model
      */
     public function __construct(array $data = array())
     {
+        $keys = array_keys($data);
+        foreach ($keys as $k) $data[$k] = htmlspecialchars_decode($data[$k], ENT_QUOTES);
         $this->data = $data;
+    }
+    public function __toString()
+    {
+        return $this->toJSON();
     }
     /**
      * Shows a model data as a JSON string.
+     * @return string Text as JSON formatted object or "ERROR" message if failure
      */
-    public function __toString()
+    public function toJSON()
     {
-        return json_encode($this->data);
+        $json = json_encode($this->data);
+        if ($json === false) return "ERROR";
+        return $json;
+    }
+    /**
+     * Shows a model data as an associative array.
+     * @return array Associative array containing model data
+     */
+    public function toArray()
+    {
+        return $this->data;
     }
     /**
      * Write on a JSON array format a list of Models
@@ -50,5 +67,16 @@ class Model
         }
         $response .= "]";
         return $response;
+    }
+    /**
+     * Returns an array of associative arrays of Models
+     * @param Model[] $models array of Model elements to be parsed
+     * @return array Array of associative arrays
+     */
+    public static function toModelsArray(array $models)
+    {
+        $result = [];
+        foreach ($models as $m) $result[] = $m->toArray();
+        return $result;
     }
 }
