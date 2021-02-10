@@ -45,7 +45,37 @@ class Controller extends MVC
         echo $message;
     }
     /**
-     * Send an error message
+     * Send a response message as a JSON string based on array $object
+     * @param array $object Object to be parsed as a JSON string.
+     * @return void
+     */
+    public static function sendJSONResponse(array $object)
+    {
+        echo json_encode($object);
+    }
+    /**
+     * Send a response message as a JSON string containig a status property set on "success" and an
+     * optional data property based on an array.
+     * @param array $data (OPTIONAL) Array to be put in JSON string as data property.
+     * @return void
+     */
+    public static function sendJSONSuccessResponse(array $data = [])
+    {
+        if (count($data) <= 0) echo json_encode(["status" => "success"]);
+        else echo json_encode(["status" => "success", "data" => $data]);
+    }
+    /**
+     * Send a response message as a JSON string containig a status property set on "error" and an
+     * optional message property based on a string.
+     * @param string $message (OPTIONAL) Message to be sent as reason for the error status
+     * @return void
+     */
+    public static function sendJSONErrorResponse(string $message = "")
+    {
+        echo json_encode(["status" => "error", "message" => $message]);
+    }
+    /**
+     * Send an HTTP 400 error with an error $message
      * @param string $message Message to be sent.
      * @return void
      */
