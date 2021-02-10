@@ -23,6 +23,7 @@ class DBModel
         "time" => "curtime()",
         "datetime" => "now()"
     );
+    private $dbfilename;
     private $lastIndex;
     private $table;
     private $bypass = false;
@@ -39,10 +40,15 @@ class DBModel
     }
     /**
      * @param SQLTable $table Defines the sql table wich is the base for DBModel.
+     * @param string $dbconf (OPTIONAL) Defines database configuration filename without extention.
+     * If not defined, by default it references to file defaultdb.json.
+     * For example, if you defined as "apidb" it references apidb.json file inside [resources/scripts/mvc4php] folder
      * @return DBModel
      */
-    public function __construct(SQLTable $table)
+    public function __construct(SQLTable $table, string $dbconf = "")
     {
+        $dbfile = ($dbconf == "") ? "defaultdb.json" : ($dbconf . ".json");
+        $this->dbfilename = $dbfile;
         $this->lastIndex = 0;
         $this->table = $table;
     }
@@ -51,13 +57,14 @@ class DBModel
      * @return mysqli if connection succeed.
      * @throws Exception if something fails while connecting to database.
      * @throws Exception if no json file found with database configuration.
-     * @throws Exception if no dbname defined on dbconf.json file.
+     * @throws Exception if no dbname defined on json database configuration file.
      */
     private function connect()
     {
         try {
-            $path = "../resources/scripts/mvc4php/dbconf.json";
-            if (!file_exists($path)) throw new Exception("No dbconf.json file found.");
+            $path = "../resources/scripts/mvc4php/" . $this->dbfilename;
+            if (!file_exists($path))
+                throw new Exception("No database configuration file named " . $this->dbfilename . " was found.");
             $dbconf = json_decode(file_get_contents($path), true);
             $hostname = (isset($dbconf["hostname"]) && $dbconf["hostname"] != "") ? $dbconf["hostname"] : "localhost";
             $hostuser = (isset($dbconf["hostuser"]) && $dbconf["hostuser"] != "") ? $dbconf["hostuser"] : "root";

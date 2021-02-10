@@ -113,15 +113,18 @@ class Controller extends MVC
     /**
      * Include model files to use on code based on $modelName.
      * @param string $modelName Name of the model to be included.
+     * @param string $dbconf (OPTIONAL) Defines database configuration filename without extention.
+     * If not defined, by default it references to file defaultdb.json.
+     * For example, if you defined as "apidb" it references apidb.json file inside [resources/scripts/mvc4php] folder
      * @return DBModel Containing the object model to make operations.
      * @throws Exception When model doesn't exists on models folder.
      */
-    public static function useModel(string $modelName)
+    public static function useModel(string $modelName, string $dbconf = "")
     {
         $path = "../models/" . $modelName . ".php";
         if (!file_exists($path)) throw new Exception("Model doesn't exists in models folder ($path).");
         $model = require $path;
-        return new DBModel($model);
+        return new DBModel($model, $dbconf);
     }
     /**
      * Verify if $dataIndexes exists as indexes on superglobal $_POST and returns variables on associative array.
